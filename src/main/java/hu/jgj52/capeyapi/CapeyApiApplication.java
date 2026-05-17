@@ -40,7 +40,15 @@ public class CapeyApiApplication {
             st.execute("""
                 CREATE TABLE IF NOT EXISTS players (
                     uuid UUID PRIMARY KEY,
-                    cape UUID
+                    cape UUID,
+                    token VARCHAR
+                )
+            """);
+            st.execute("""
+                CREATE TABLE IF NOT EXISTS capes (
+                    uuid UUID PRIMARY KEY,
+                    uploader UUID,
+                    type VARCHAR
                 )
             """);
         } catch (SQLException e) {
