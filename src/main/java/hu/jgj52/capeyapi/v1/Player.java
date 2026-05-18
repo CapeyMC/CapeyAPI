@@ -1,17 +1,17 @@
 package hu.jgj52.capeyapi.v1;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.socket.TextMessage;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import static hu.jgj52.capeyapi.CapeyApiApplication.ds;
+import static hu.jgj52.capeyapi.v1.websocket.WebSocketHandler.sessions;
 
 @RestController
 @RequestMapping("/v1")
@@ -31,6 +31,45 @@ public class Player {
             }
             String cape = rs.getString("cape");
             return ResponseEntity.status(200).body(cape);
+        } catch (SQLException e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/player")
+    public ResponseEntity<String> setCape(@RequestHeader("Authorization") String token, @RequestBody String uuid) {
+        try (Connection conn = ds.getConnection()) {
+            PreparedStatement ps = conn.prepareStatement("""
+                SELECT * FROM players WHERE token = ?
+                LIMIT 1
+            """);
+
+            ps.setString(1, token);
+
+            ResultSet rs = ps.executeQuery();
+            if (!rs.next()) return ResponseEntity.status(401).build();
+            String uid = rs.getString("uuid");
+
+            PreparedStatement pst = conn.prepareStatement("""
+                UPDATE players
+                SET cape = ?::uuid
+                WHERE uuid = ?::uuid
+            """);
+
+            pst.setString(1, uuid);
+            pst.setString(2, uid);
+
+            pst.executeUpdate();
+
+            sessions.forEach(session -> {
+                try {
+                    session.sendMessage(new TextMessage("cape " + uid));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            return ResponseEntity.status(200).build();
         } catch (SQLException e) {
             return ResponseEntity.status(500).body(e.getMessage());
         }

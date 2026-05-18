@@ -20,6 +20,7 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-restclient'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'io.github.cdimascio:java-dotenv:5.2.2'
     implementation 'com.zaxxer:HikariCP:7.0.2'
