@@ -1,5 +1,7 @@
 package hu.jgj52.capeyapi.v1;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,7 @@ import static hu.jgj52.capeyapi.CapeyApiApplication.ds;
 @RestController
 @RequestMapping("/v1")
 public class Cape {
+    private static final Gson gson = new Gson();
     @GetMapping("/cape/{uuid}")
     public ResponseEntity<Resource> getCape(@PathVariable String uuid) {
         try (Connection conn = ds.getConnection()) {
@@ -38,6 +41,28 @@ public class Cape {
             return ResponseEntity.status(200).header("Content-Type", rs.getString("type")).body(res);
         } catch (SQLException e) {
             return ResponseEntity.status(500).build();
+        }
+    }
+
+    @GetMapping("/capes")
+    public ResponseEntity<String> getCapes() {
+        try (Connection conn = ds.getConnection()) {
+            PreparedStatement ps = conn.prepareStatement("""
+                SELECT uuid FROM capes
+                ORDER BY uploader
+            """);
+
+            ResultSet rs = ps.executeQuery();
+
+            JsonArray uuids = new JsonArray();
+
+            while (rs.next()) {
+                uuids.add(rs.getString("uuid"));
+            }
+
+            return ResponseEntity.status(200).body(gson.toJson(uuids));
+        } catch (SQLException e) {
+            return ResponseEntity.status(500).body(e.getMessage());
         }
     }
 
