@@ -2,6 +2,7 @@ package hu.jgj52.capeyapi.v1;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
@@ -48,7 +49,7 @@ public class Cape {
     public ResponseEntity<String> getCapes() {
         try (Connection conn = ds.getConnection()) {
             PreparedStatement ps = conn.prepareStatement("""
-                SELECT uuid FROM capes
+                SELECT * FROM capes
                 ORDER BY uploader
             """);
 
@@ -57,7 +58,10 @@ public class Cape {
             JsonArray uuids = new JsonArray();
 
             while (rs.next()) {
-                uuids.add(rs.getString("uuid"));
+                JsonObject obj = new JsonObject();
+                obj.addProperty("uuid", rs.getString("uuid"));
+                obj.addProperty("uploader", rs.getString("uploader"));
+                obj.addProperty("type", rs.getString("type"));
             }
 
             return ResponseEntity.status(200).body(gson.toJson(uuids));
