@@ -55,16 +55,17 @@ public class Cape {
 
             ResultSet rs = ps.executeQuery();
 
-            JsonArray uuids = new JsonArray();
+            JsonArray capes = new JsonArray();
 
             while (rs.next()) {
                 JsonObject obj = new JsonObject();
                 obj.addProperty("uuid", rs.getString("uuid"));
                 obj.addProperty("uploader", rs.getString("uploader"));
                 obj.addProperty("type", rs.getString("type"));
+                capes.add(obj);
             }
 
-            return ResponseEntity.status(200).body(gson.toJson(uuids));
+            return ResponseEntity.status(200).body(gson.toJson(capes));
         } catch (SQLException e) {
             return ResponseEntity.status(500).body(e.getMessage());
         }
