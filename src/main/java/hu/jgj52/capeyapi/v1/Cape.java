@@ -62,6 +62,7 @@ public class Cape {
                 obj.addProperty("uuid", rs.getString("uuid"));
                 obj.addProperty("uploader", rs.getString("uploader"));
                 obj.addProperty("type", rs.getString("type"));
+                obj.addProperty("name", rs.getString("name"));
                 capes.add(obj);
             }
 
@@ -72,7 +73,7 @@ public class Cape {
     }
 
     @PostMapping("/cape")
-    public ResponseEntity<String> uploadCape(@RequestHeader("Authorization") String token, @RequestHeader("Content-Type") String type, @RequestBody byte[] file) {
+    public ResponseEntity<String> uploadCape(@RequestHeader("Authorization") String token, @RequestHeader("Content-Type") String type, @RequestHeader("X-Cape-Name") String name, @RequestBody byte[] file) {
         try (Connection conn = ds.getConnection()) {
             PreparedStatement ps = conn.prepareStatement("""
                 SELECT * FROM players WHERE token = ?
@@ -86,16 +87,18 @@ public class Cape {
 
             UUID uuid = UUID.randomUUID();
             PreparedStatement pst = conn.prepareStatement("""
-                INSERT INTO capes (uuid, uploader, type)
+                INSERT INTO capes (uuid, uploader, type, name)
                 VALUES (
                       ?::uuid,
                       ?::uuid,
+                      ?,
                       ?
                 )
             """);
             pst.setString(1, uuid.toString());
             pst.setString(2, player.getString("uuid"));
             pst.setString(3, type);
+            pst.setString(4, name);
             pst.executeUpdate();
 
             File f = new File("capes", uuid.toString());
