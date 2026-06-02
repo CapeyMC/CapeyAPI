@@ -27,6 +27,8 @@ public class Player {
                 return ResponseEntity.status(404).build();
             }
             String cape = rs.getString("cape");
+
+            if (cape == null) return ResponseEntity.status(404).build();
             return ResponseEntity.status(200).body(cape);
         } catch (SQLException e) {
             return ResponseEntity.status(500).body(e.getMessage());
