@@ -5,10 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.socket.TextMessage;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 import static hu.jgj52.capeyapi.CapeyApiApplication.ds;
 import static hu.jgj52.capeyapi.v1.websocket.WebSocketHandler.sessions;
@@ -37,7 +34,7 @@ public class Player {
     }
 
     @PostMapping("/player")
-    public ResponseEntity<String> setCape(@RequestHeader("Authorization") String token, @RequestBody String uuid) {
+    public ResponseEntity<String> setCape(@RequestHeader("Authorization") String token, @RequestBody(required = false) String uuid) {
         try (Connection conn = ds.getConnection()) {
             PreparedStatement ps = conn.prepareStatement("""
                 SELECT * FROM players WHERE token = ?
@@ -56,7 +53,8 @@ public class Player {
                 WHERE uuid = ?::uuid
             """);
 
-            pst.setString(1, uuid);
+            if (uuid == null) pst.setNull(1, Types.OTHER);
+            else pst.setString(1, uuid);
             pst.setString(2, uid);
 
             pst.executeUpdate();
