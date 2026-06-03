@@ -38,6 +38,9 @@ public class CapeyApiApplication {
 
         try (Connection conn = ds.getConnection(); Statement st = conn.createStatement()) {
             st.execute("""
+                CREATE EXTENSION IF NOT EXISTS pgcrypto
+            """);
+            st.execute("""
                 CREATE TABLE IF NOT EXISTS players (
                     uuid UUID PRIMARY KEY,
                     cape UUID,
