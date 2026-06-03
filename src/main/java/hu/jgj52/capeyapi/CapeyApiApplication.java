@@ -44,7 +44,7 @@ public class CapeyApiApplication {
                 CREATE TABLE IF NOT EXISTS players (
                     uuid UUID PRIMARY KEY,
                     cape UUID,
-                    token VARCHAR
+                    token VARCHAR DEFAULT encode(gen_random_bytes(16), 'hex')
                 )
             """);
             st.execute("""
