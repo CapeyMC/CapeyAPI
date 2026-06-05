@@ -50,7 +50,7 @@ public class Cape {
         try (Connection conn = ds.getConnection()) {
             PreparedStatement ps = conn.prepareStatement("""
                 SELECT * FROM capes
-                ORDER BY uploader
+                ORDER BY timestamp
             """);
 
             ResultSet rs = ps.executeQuery();
