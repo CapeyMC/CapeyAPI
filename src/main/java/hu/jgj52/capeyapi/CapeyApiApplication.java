@@ -51,7 +51,8 @@ public class CapeyApiApplication {
                 CREATE TABLE IF NOT EXISTS capes (
                     uuid UUID PRIMARY KEY,
                     uploader UUID,
-                    type VARCHAR
+                    type VARCHAR,
+                    timestamp bigint DEFAULT (EXTRACT(epoch FROM now()))::bigint
                 )
             """);
         } catch (SQLException e) {
