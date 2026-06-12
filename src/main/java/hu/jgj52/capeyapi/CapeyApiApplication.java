@@ -52,6 +52,7 @@ public class CapeyApiApplication {
                     uuid UUID PRIMARY KEY,
                     uploader UUID,
                     type VARCHAR,
+                    name VARCHAR,
                     timestamp bigint DEFAULT (EXTRACT(epoch FROM now()))::bigint
                 )
             """);
